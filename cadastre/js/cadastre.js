@@ -81,13 +81,13 @@ GEOR.Addons.cadastre.prototype = (function () {
         _mask_loader.hide();
     };
 
-    var getParcelle = function (idregion) {
+    var getParcelle = function (idparc) {
         _statusbar.setStatus({
             text: 'Recherche de la parcelle',
             iconCls: 'x-status-busy',
             clear: false // auto-clear after a set interval
         });
-        var postRequest = '<wfs:GetFeature service="WFS" version="1.0.0"' + ' outputFormat="json"' + ' xmlns:topp="http://www.openplans.org/topp"' + ' xmlns:wfs="http://www.opengis.net/wfs"' + ' xmlns:ogc="http://www.opengis.net/ogc"' + ' xmlns:gml="http://www.opengis.net/gml"' + ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' + ' xsi:schemaLocation="http://www.opengis.net/wfs' + ' http://schemas.opengis.net/wfs/1.0.0/WFS-basic.xsd">' + ' <wfs:Query typeName="' + _config.parcelles.typename + '">' + ' <ogc:Filter>' + '<ogc:PropertyIsEqualTo>' + '<ogc:PropertyName>id_region</ogc:PropertyName>' + ' <ogc:Literal>' + idregion + '</ogc:Literal>' + '</ogc:PropertyIsEqualTo>' + ' </ogc:Filter>' + ' </wfs:Query>' + ' </wfs:GetFeature>';
+        var postRequest = '<wfs:GetFeature service="WFS" version="1.0.0"' + ' outputFormat="json"' + ' xmlns:topp="http://www.openplans.org/topp"' + ' xmlns:wfs="http://www.opengis.net/wfs"' + ' xmlns:ogc="http://www.opengis.net/ogc"' + ' xmlns:gml="http://www.opengis.net/gml"' + ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' + ' xsi:schemaLocation="http://www.opengis.net/wfs' + ' http://schemas.opengis.net/wfs/1.0.0/WFS-basic.xsd">' + ' <wfs:Query typeName="' + _config.parcelles.typename + '">' + ' <ogc:Filter>' + '<ogc:PropertyIsEqualTo>' + '<ogc:PropertyName>' + _config.parcelles.idfield +'</ogc:PropertyName>' + ' <ogc:Literal>' + idparc + '</ogc:Literal>' + '</ogc:PropertyIsEqualTo>' + ' </ogc:Filter>' + ' </wfs:Query>' + ' </wfs:GetFeature>';
         var request = OpenLayers.Request.issue({
             method: 'POST',
             headers: {
@@ -145,11 +145,10 @@ GEOR.Addons.cadastre.prototype = (function () {
             var tmp1 = String("000" + parcelle);
             var formatparcelle = tmp1.substring(tmp1.length - 4, tmp1.length + 1);
             var tmp2 = "0000" + section;
-            var formatsection = tmp2.substring(tmp2.length - 5, tmp2.length + 1);
-            //var commune = Ext.getCmp('cbcom').getValue();
+            var formatsection = tmp2.substring(tmp2.length - 5, tmp2.length + 1);            
             var commune = _communesCombo.getValue();
             var id_region = commune + formatsection + formatparcelle;
-            getParcelle(id_region);
+            getParcelle("FR"+id_region);
         } else {
             alert("la saisie : " + text + " n'est pas valide");
         }

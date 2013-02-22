@@ -14,19 +14,10 @@
                     "idfield": "INSE",
                     "labelfield": "COMMUNE"
                 },
-            "sections": {
-                "wfsurl": "http://geobretagne.fr/geoserver/ref/wfs",
-                "typename": "ref:cadastre_section",
-                "criterefield": "insee",
-                "labelfield": "texnumsect"
-            },
             "parcelles": {
-                "wfsurl": "http://geobretagne.fr/geoserver/ref/wfs",
-                "typename": "ref:cadastre_parcelle",
-                "idfield": "texnumparc",
-                "criterefield1": "insee",
-                "criterefield2": "section",
-                "labelfield": "texnumparc"
+                "wfsurl": "http://geobretagne.fr/geoserver/cadastre/wfs",
+                "typename": "cadastre:CP.CadastralParcel",
+                "idfield": "inspireid"               
             },
             "animation": false,
             "proxy":"ws/ogcproxy/?url="
