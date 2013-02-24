@@ -1,0 +1,19 @@
+{
+    "js": [               
+        "js/ccoordinates.js"
+    ],
+    "css": [
+        "css/coordinates.css"
+    ],
+    "default_options": {
+        "placement": "bottom",
+        "position": 3
+    },
+    "i18n": {
+        "en": {},
+        "es": {},
+        "fr": {
+            "coordinates": "Coordonnées"
+        }
+    }
+}
