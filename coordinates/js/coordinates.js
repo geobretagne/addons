@@ -5,7 +5,10 @@ GEOR.Addons.coordinates = function (map, options) {
     this.options = options;
     this.control = null;
     this.item = null;
-    this.layer = null;    
+    this.layer = null;
+    this.action = null;
+    this.toolbar = null;
+    this.infos = [];    
 };
 
 GEOR.Addons.coordinates.prototype = (function () {
@@ -17,29 +20,83 @@ GEOR.Addons.coordinates.prototype = (function () {
     var _map = null;    
     var _config = null;    
     var _coordinatesLayer = null;    
-    var _mask_loader = null;   
-    
+    var _mask_loader = null;
 
-    var requestFailure = function (response) {
-        alert(response.responseText);
-        _mask_loader.hide();
-    };
+    var _styleMap= new OpenLayers.StyleMap({'default':{
+                externalGraphic: "app/addons/coordinates/img/target.png",
+                graphicWidth: 16,
+                graphicHeight: 16,
+                }});   
     
     var _createDrawControl = function () {
             var drawPointCtrl = new OpenLayers.Control.DrawFeature(_coordinatesLayer, OpenLayers.Handler.Point, {
                 featureAdded: function (e) {
+                    _onClick(e);
                     drawPointCtrl.deactivate();
                 }
             });
+           drawPointCtrl.deactivate();
            return drawPointCtrl;
         };
+        
+    var _onClick = function (feature) {
+        var url = _config.url;
+        var pixel = _map.getPixelFromLonLat(new OpenLayers.LonLat(feature.geometry.x,feature.geometry.y));
+        var params = {
+            SERVICE: "WMS",
+            VERSION: "1.1.1",
+            REQUEST: "GetFeatureInfo",
+            LAYERS: _config.infoslayers,
+            QUERY_LAYERS: _config.infoslayers,
+            FEATURE_COUNT: "10",
+            STYLES:"",
+            BBOX:_map.getExtent().toBBOX(),
+            HEIGHT: _map.getCurrentSize().h,
+            WIDTH: _map.getCurrentSize().w,
+            FORMAT: "image/png",
+            INFO_FORMAT: "application/vnd.ogc.gml",
+            SRS: _map.getProjection(),
+            X: pixel.x,
+            Y: pixel.y        
+        }        
+        _self.infos.push(new GEOR.Addons.coordinatesquery(_map,feature,url,params));
+        _self.control.deactivate();
+    };
+    
+   
+    
+    var _activateControl = function () {
+        _self.control.activate();
+    };
+    
+    var _showInfos = function (e) {
+        console.log("Coordonnées",e.feature.coordinates);
+    }
     
 
     return {
         /*
          * Public
          */
-
+        activateTool: function() {
+            this.action = new Ext.Action({handler: _activateControl,scope:this,iconCls: 'coordinates-icon' });
+            this.toolbar  = (_config.placement === "bottom") ? Ext.getCmp("mappanel").bottomToolbar : Ext.getCmp("mappanel").topToolbar;         
+            this.toolbar.insert(parseInt(this.options.position),'-');
+            this.toolbar.insert(parseInt(this.options.position),this.action);
+            this.toolbar.doLayout();
+        },
+         deactivateTool: function() {
+            this.toolbar.remove(this.action.items[0]);
+            this.toolbar.remove(this.toolbar.items.items[this.options.position]);
+         },        
+        onCheckchange: function(item, checked) {
+            if (checked) {
+               this.activateTool();
+            } else {
+               this.deactivateTool();
+            }
+        },     
+        
 
         init: function (record) {
             _self = this;
@@ -48,51 +105,39 @@ GEOR.Addons.coordinates.prototype = (function () {
             _map = this.map;            
             _coordinatesLayer = new OpenLayers.Layer.Vector("coordinates", {
                 displayInLayerSwitcher: false
+                ,styleMap: _styleMap
             });
             this.layer = _coordinatesLayer;
             _config = _self.options;
             
             this.map.addLayers([_coordinatesLayer]);
-            this.control = _createDrawControl();
+            this.control = _createDrawControl();           
+               
+            this.map.addControl(this.control);
             
-            a = new Ext.Action({text: 'Action 1', handler: function(){ alert('You clicked on');},iconCls: 'mf-print-action' });
-
-            b = Ext.getCmp("mappanel").bottomToolbar;
-            b.insert(3,'-');
-            b.insert(3,a);
-            b.doLayout();
-
-            --------------------------------------------------
-            b.remove(a.items[0]);
-            b.remove(b.items.items[3]);
-            
-            var menuitems = new Ext.menu.Item({
+            var item = new Ext.menu.CheckItem({
                 text: title,
-                iconCls: 'cadastre2-icon',
-                qtip: description,
+                hidden:(this.options.showintoolmenu ===true)? false: true,                
+                checked: this.options.autoactivate,
+                qtip: record.get("description")[lang],
                 listeners: {
-                    afterrender: function (thisMenuItem) {
-                        Ext.QuickTips.register({
-                            target: thisMenuItem.getEl().getAttribute("id"),
-                            title: thisMenuItem.initialConfig.text,
-                            text: thisMenuItem.initialConfig.qtip
-                        });
-                    },
-                    click: function () {
-                        this.control.activate();
-                    },
+                    "checkchange": this.onCheckchange,
                     scope: this
                 }
+               
             });
-            this.item = menuitems;
-            return menuitems;
+            if (this.options.autoactivate === true) { this.activateTool();}            
+            this.item = item;
+            return item;
         },
         destroy: function () {
             this.map = null;
             this.options = null;
             this.control = null;
             this.item = null;
-            this.layer.destroy();            
+            this.layer.destroy();
+            this.toolbar.remove(this.action.items[0]);
+            this.toolbar.remove(this.toolbar.items.items[this.options.position]);
         }
     }
 })();
