@@ -10,7 +10,7 @@
         "placement": "bottom",
         "position": 3,
         "url" : "http://geobretagne.fr/geoserver/ref/wms",
-        "infoslayers": "REG_BD_ALTI,mnt5m-megalis",
+        "infoslayers": "mnt5m-megalis,REG_BD_ALTI",
         "showintoolmenu": true,
         "autoactivate": false
     },

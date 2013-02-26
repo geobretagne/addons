@@ -21,12 +21,14 @@ GEOR.Addons.coordinates.prototype = (function () {
     var _config = null;    
     var _coordinatesLayer = null;    
     var _mask_loader = null;
-
-    var _styleMap= new OpenLayers.StyleMap({'default':{
+    
+    var _style = {
                 externalGraphic: "app/addons/coordinates/img/target.png",
                 graphicWidth: 16,
-                graphicHeight: 16,
-                }});   
+                graphicHeight: 16
+                };
+
+    var _styleMap= new OpenLayers.StyleMap({'default': _style, 'temporary': _style});   
     
     var _createDrawControl = function () {
             var drawPointCtrl = new OpenLayers.Control.DrawFeature(_coordinatesLayer, OpenLayers.Handler.Point, {
@@ -132,12 +134,15 @@ GEOR.Addons.coordinates.prototype = (function () {
         },
         destroy: function () {
             this.map = null;
-            this.options = null;
+            this.control.deactivate();
+            this.control.destroy();
             this.control = null;
             this.item = null;
             this.layer.destroy();
+            Ext.each(this.infos, function(w, i) {w.destroy();});
             this.toolbar.remove(this.action.items[0]);
             this.toolbar.remove(this.toolbar.items.items[this.options.position]);
+            this.options = null;
         }
     }
 })();

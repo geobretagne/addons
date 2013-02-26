@@ -30,14 +30,22 @@ GEOR.Addons.coordinatesquery.prototype = (function () {
         },
                
         onSuccess: function (response) {
+            var priorityLayer = "";
             var attributes = this.feature.coordinates;
+            var infoslayers = this.params.QUERY_LAYERS.split(",");
             var features = new OpenLayers.Format.GML().read(response.responseText);
             for (var i = 0; i < features.length; i++) {
                 attributes[features[i].gml.featureType] = features[i].attributes.GRAY_INDEX;
                 this.feature.coordinates.z[features[i].gml.featureType] =  features[i].attributes.GRAY_INDEX;
             }           
             this.feature.attributes = attributes;
-            
+            // priority info                
+            for (var i = 0; i < infoslayers.length; i++) {
+                if (this.feature.coordinates.z.hasOwnProperty(infoslayers[i])) {
+                    priorityLayer = infoslayers[i];
+                    break;
+                }
+            }         
            
             this.popup = new GeoExt.Popup({
                 map: this.map,
@@ -65,13 +73,11 @@ GEOR.Addons.coordinatesquery.prototype = (function () {
             this.popup.update({
                     x:this.feature.coordinates.x,
                     y:this.feature.coordinates.y,
-                    z:this.feature.coordinates.z["REG_BD_ALTI"],
-                    zmetadata:"bdalti"
+                    z:Ext.util.Format.number(this.feature.coordinates.z[priorityLayer], '0.0'),
+                    zmetadata:priorityLayer.toLowerCase()
             });
             this.popup.position();
-            GEOR.waiter.hide();
-            
-            
+            GEOR.waiter.hide();            
         },
        
         destroy: function () {
