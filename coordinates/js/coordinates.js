@@ -1,4 +1,4 @@
-﻿Ext.namespace("GEOR.Addons");
+Ext.namespace("GEOR.Addons");
 
 GEOR.Addons.coordinates = function (map, options) {
     this.map = map;
@@ -42,7 +42,7 @@ GEOR.Addons.coordinates.prototype = (function () {
         };
         
     var _onClick = function (feature) {
-        var url = _config.url;
+        /*var url = _config.url;
         var pixel = _map.getPixelFromLonLat(new OpenLayers.LonLat(feature.geometry.x,feature.geometry.y));
         var params = {
             SERVICE: "WMS",
@@ -61,7 +61,8 @@ GEOR.Addons.coordinates.prototype = (function () {
             X: pixel.x,
             Y: pixel.y        
         }        
-        _self.infos.push(new GEOR.Addons.coordinatesquery(_map,feature,url,params));
+        _self.infos.push(new GEOR.Addons.coordinatesquery(_map,feature,url,params));*/
+        _self.infos.push(new GEOR.Addons.coordinatesquery(_map,feature,_config.services));
         _self.control.deactivate();
     };
     

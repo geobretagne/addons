@@ -1,5 +1,5 @@
 {
-    "js": [               
+    "js": [
         "js/coordinates.js",
         "js/coordinatesquery.js"
     ],
@@ -9,8 +9,43 @@
     "default_options": {
         "placement": "bottom",
         "position": 3,
-        "url" : "http://geobretagne.fr/geoserver/ref/wms",
-        "infoslayers": "mnt5m-megalis,REG_BD_ALTI",
+        "services": [
+            {
+                "url": "http://geobretagne.fr/geoserver/ref/wms",
+                "layers": [
+                    {
+                        "name": "mnt5m-megalis",
+                        "label": "mnt 5m morbihan",
+                        "metadata": "http://geobretagne.fr/geonetwork/srv/fr/metadata.show?uuid=b0bb2067-157f-477d-951d-09b1fa0e98ef"
+                    },
+                    {
+                        "name": "REG_BD_ALTI",
+                        "label": "mnt 25m IGN",
+                        "metadata": "http://geobretagne.fr/geonetwork/srv/fr/metadata.show?uuid=b29b9a3b-a9ba-4834-a33a-35c3b78ff444"
+                    }
+                ]
+            },
+            {
+                "url": "http://dev.geobretagne.fr/geoserver/ref/wms",
+                "layers": [
+                    {
+                        "name": "litto3d",
+                        "label": "litto 3D IGN",
+                        "metadata": "http://geobretagne.fr/geonetwork/srv/fr/metadata.show?uuid=266b60bd-0f1d-4e47-a5b5-c932e35d836d"
+                    }
+                ]
+            },
+            {
+                "url": "http://sdi.georchestra.org/geoserver/nasa/wms",
+                "layers": [
+                    {
+                        "name": "srtm3",
+                        "label": "SRTM 3 NASA",
+                        "metadata": "http://www2.jpl.nasa.gov/srtm/"
+                    }
+                ]
+            }
+        ],
         "showintoolmenu": true,
         "autoactivate": false
     },
@@ -18,7 +53,7 @@
         "en": {},
         "es": {},
         "fr": {
-            "coordinates": "Coordonnées"
+            "coordinates": "CoordonnÃ©es"
         }
     }
 }
