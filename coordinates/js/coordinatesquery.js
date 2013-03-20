@@ -3,12 +3,16 @@ Ext.namespace("GEOR.Addons");
 GEOR.Addons.coordinatesquery = function (map, feature, services) {
     GEOR.waiter.show();
     this.map = map;
+    this.decimalseparator = ((1.33).toLocaleString() === "1.33") ? ".":",";
     this.feature = feature;
-    this.services = services;  
+    this.services = services;
+    this.csv = "source;x;y;z\n";
+    this.events = new Ext.util.Observable();
+    this.events.addEvents("coordinatesclose");    
     this.pixel = this.map.getPixelFromLonLat(new OpenLayers.LonLat(this.feature.geometry.x,this.feature.geometry.y));             
     //this.feature.coordinates = {lon:feature.geometry.x, lat:feature.geometry.y, alt : []};
     this.projfeature = new OpenLayers.Geometry.Point(this.feature.geometry.x,this.feature.geometry.y).transform(new OpenLayers.Projection("EPSG:2154"), new OpenLayers.Projection("EPSG:4326"));
-    this.feature.coordinates = {lon:this.projfeature.x, lat:this.projfeature.y, alt : []};
+    this.feature.coordinates = {lon:this.formatNumber(Ext.util.Format.number(this.projfeature.x,"0.000000")), lat:this.formatNumber(Ext.util.Format.number(this.projfeature.y,"0.000000")), alt : []};
     
     
     this.popup = new GeoExt.Popup({
@@ -33,12 +37,13 @@ GEOR.Addons.coordinatesquery = function (map, feature, services) {
           '</tpl>' 
         ), 
         listeners: {
-            "close": function() {                        
-                this.destroy();                        
+            "close": this.onPopupClose /*function() {                
+                this.destroy();
+                this.events.fireEvent("coordinatesclose", this);
                 this.feature.destroy();
-            }                
-        },
-        scope:this
+            }  */              
+        }
+        ,scope:this
     });           
     this.popup.show();
     this.popup.update({
@@ -91,6 +96,7 @@ GEOR.Addons.coordinatesquery.prototype = (function () {
          */
         onPopupClose: function (evt) {
             this.feature.destroy();
+            this.scope.events.fireEvent("coordinatesclose", this);
         },
         
         getMetadata: function (name) {             
@@ -102,6 +108,14 @@ GEOR.Addons.coordinatesquery.prototype = (function () {
                     }
                 }
              }
+        },
+        
+        formatNumber: function (value) {
+            var formatnumber = value;
+            if (OpenLayers.Lang.code === 'fr') {
+                formatnumber = value.replace(".", this.decimalseparator);                
+            }
+            return formatnumber;
         },
       
       onFailure: function (service, self, response) {       
@@ -116,8 +130,12 @@ GEOR.Addons.coordinatesquery.prototype = (function () {
             var features = new OpenLayers.Format.GML().read(response.responseText);
             if (features.length > 0) {
               for (var i = 0; i < features.length; i++) {
-                var metadata = this.getMetadata(features[i].gml.featureType);
-                this.feature.coordinates.alt.push({label:metadata.label, metadata:metadata.metadata,z: Ext.util.Format.number(features[i].attributes.GRAY_INDEX,"0.00")});
+                var metadata = this.getMetadata(features[i].gml.featureType);                
+                if (parseInt(features[i].attributes.GRAY_INDEX) != parseInt(metadata.nodatavalue)) {
+                    this.feature.coordinates.alt.push({label:metadata.label, metadata:metadata.metadata,z: this.formatNumber(Ext.util.Format.number(features[i].attributes.GRAY_INDEX,"0.00"))});
+                    this.csv +=  metadata.label + ";" + this.feature.coordinates.lon + ";" + this.feature.coordinates.lat + ";" + this.formatNumber(Ext.util.Format.number(features[i].attributes.GRAY_INDEX,"0.00")) + "\n";
+                    console.log("Export CSV",this.csv);
+                }
               }
               
               this.popup.update({

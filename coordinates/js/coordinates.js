@@ -26,6 +26,7 @@ GEOR.Addons.coordinates.prototype = (function () {
                 externalGraphic: "app/addons/coordinates/img/target.png",
                 graphicWidth: 16,
                 graphicHeight: 16
+                ,graphicZIndex:745
                 };
 
     var _styleMap= new OpenLayers.StyleMap({'default': _style, 'temporary': _style});   
@@ -41,48 +42,36 @@ GEOR.Addons.coordinates.prototype = (function () {
            return drawPointCtrl;
         };
         
+    var _onxyzClose = function (xyz) {        
+        _self.infos.remove(xyz.scope);
+    };
+        
     var _onClick = function (feature) {
-        /*var url = _config.url;
-        var pixel = _map.getPixelFromLonLat(new OpenLayers.LonLat(feature.geometry.x,feature.geometry.y));
-        var params = {
-            SERVICE: "WMS",
-            VERSION: "1.1.1",
-            REQUEST: "GetFeatureInfo",
-            LAYERS: _config.infoslayers,
-            QUERY_LAYERS: _config.infoslayers,
-            FEATURE_COUNT: "10",
-            STYLES:"",
-            BBOX:_map.getExtent().toBBOX(),
-            HEIGHT: _map.getCurrentSize().h,
-            WIDTH: _map.getCurrentSize().w,
-            FORMAT: "image/png",
-            INFO_FORMAT: "application/vnd.ogc.gml",
-            SRS: _map.getProjection(),
-            X: pixel.x,
-            Y: pixel.y        
-        }        
-        _self.infos.push(new GEOR.Addons.coordinatesquery(_map,feature,url,params));*/
-        _self.infos.push(new GEOR.Addons.coordinatesquery(_map,feature,_config.services));
-        _self.control.deactivate();
+        var xyz = new GEOR.Addons.coordinatesquery(_map,feature,_config.services);
+        xyz.events.on("coordinatesclose", _onxyzClose);
+        _self.infos.push(xyz);                
     };
     
    
     
     var _activateControl = function () {
         _self.control.activate();
+        //_coordinatesLayer.setZIndex( 500 );
+        _self.map.setLayerIndex( _coordinatesLayer, _self.map.layers.length-1);
     };
     
     var _showInfos = function (e) {
         console.log("Coordonnées",e.feature.coordinates);
     }
     
+       
 
     return {
         /*
          * Public
          */
         activateTool: function() {
-            this.action = new Ext.Action({handler: _activateControl,scope:this,iconCls: 'coordinates-icon' });
+            this.action = new Ext.Action({handler: _activateControl,scope:this,text:"xyz" });
             this.toolbar  = (_config.placement === "bottom") ? Ext.getCmp("mappanel").bottomToolbar : Ext.getCmp("mappanel").topToolbar;         
             this.toolbar.insert(parseInt(this.options.position),'-');
             this.toolbar.insert(parseInt(this.options.position),this.action);
@@ -107,16 +96,19 @@ GEOR.Addons.coordinates.prototype = (function () {
             title = record.get("title")[lang];
             _map = this.map;            
             _coordinatesLayer = new OpenLayers.Layer.Vector("coordinates", {
-                displayInLayerSwitcher: false
-                ,styleMap: _styleMap
+                rendererOptions: {zIndexing: true},
+                displayInLayerSwitcher: false,                
+                styleMap: _styleMap
             });
             this.layer = _coordinatesLayer;
             _config = _self.options;
             
-            this.map.addLayers([_coordinatesLayer]);
+            this.map.addLayers([_coordinatesLayer]);            
             this.control = _createDrawControl();           
-               
-            this.map.addControl(this.control);
+            //_coordinatesLayer.setZIndex( 500 );   
+            this.map.addControl(this.control);    
+            
+            
             
             var item = new Ext.menu.CheckItem({
                 text: title,
