@@ -9,13 +9,15 @@ Sur la base d'une polyligne passée en paramètre, le process retourne un tablea
 
 paramètres d'entrée
 ===================
+
 * géométrie (gml)
 * projection (projection associée à la géométrie et donc celle de mapfishapp si on utilise l'addon profile)
 * format de sortie (json|texte)
-* référentie utilisé (si plusieurs mnt sont disponibles, il faut indiquer lequel utiliser)
+* référentiel utilisé (si plusieurs mnt sont disponibles, il faut indiquer lequel utiliser)
 
-Exemple de réponse WPS
-```<?xml version="1.0" encoding="utf-8"?>
+Exemple de réponse WPS:
+```xml
+<?xml version="1.0" encoding="utf-8"?>
 <wps:ExecuteResponse xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" 
 xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsExecute_response.xsd" 
@@ -44,7 +46,8 @@ statusLocation="http://geobretagne.fr/wps/outputs/pywps-143705296593.xml">
             </wps:Data>
         </wps:Output>
     </wps:ProcessOutputs>
-</wps:ExecuteResponse>```
+</wps:ExecuteResponse>
+```
 
 TODO
 ====
