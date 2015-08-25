@@ -1,3 +1,9 @@
 [submodule "profile"]
 	path = profile
 	url = https://github.com/geobretagne/profile.git
+[submodule "cadastre"]
+	path = cadastre
+	url = https://github.com/geobretagne/cadastre.git
+[submodule "coordinates"]
+	path = coordinates
+	url = https://github.com/geobretagne/coordinates.git
